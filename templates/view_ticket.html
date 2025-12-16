@@ -39,6 +39,32 @@
             </div>
         </div>
         
+        <!-- Satisfaction Rating (show after resolved) -->
+        {% if ticket.status == 'Resolved' and user.id == ticket.requester_id and not ticket.satisfaction_rating %}
+        <div class="card mt-2" style="border: 2px solid var(--accent-blue);">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-star"></i> Rate Your Support Experience</h3></div>
+            <div class="card-body">
+                <p class="text-secondary" style="margin-bottom: 1rem;">How was your experience with IT support on this ticket?</p>
+                <div style="display: flex; gap: 1rem;">
+                    <form method="POST" action="{{ url_for('rate_ticket', ticket_id=ticket.id) }}" style="display: inline;">
+                        <input type="hidden" name="rating" value="positive">
+                        <button type="submit" class="btn btn-success" style="font-size: 1.5rem; padding: 1rem 2rem;"><i class="fas fa-thumbs-up"></i> Great!</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('rate_ticket', ticket_id=ticket.id) }}" style="display: inline;">
+                        <input type="hidden" name="rating" value="negative">
+                        <button type="submit" class="btn btn-secondary" style="font-size: 1.5rem; padding: 1rem 2rem;"><i class="fas fa-thumbs-down"></i> Needs Improvement</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% elif ticket.satisfaction_rating %}
+        <div class="card mt-2">
+            <div class="card-body" style="text-align: center; padding: 1rem;">
+                <span class="text-muted"><i class="fas fa-{% if ticket.satisfaction_rating == 'positive' %}thumbs-up" style="color: var(--accent-green){% else %}thumbs-down" style="color: var(--accent-red){% endif %};"></i> Feedback submitted - Thank you!</span>
+            </div>
+        </div>
+        {% endif %}
+        
         <div class="card mt-2">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-comments"></i> Activity & Comments</h3>
@@ -62,6 +88,17 @@
         </div>
     </div>
     <div>
+        <!-- SLA Timer Card -->
+        {% if ticket.due_date and ticket.status not in ['Resolved', 'Closed'] %}
+        <div class="card" id="slaCard" style="margin-bottom: 1rem;">
+            <div class="card-body" style="text-align: center; padding: 1.25rem;">
+                <div class="text-small text-muted" style="margin-bottom: 0.5rem;">SLA DEADLINE</div>
+                <div id="slaTimer" style="font-size: 1.75rem; font-weight: 700; font-family: 'IBM Plex Mono', monospace;"></div>
+                <div id="slaStatus" class="text-small" style="margin-top: 0.5rem;"></div>
+            </div>
+        </div>
+        {% endif %}
+        
         <div class="card">
             <div class="card-header"><h3 class="card-title">Details</h3></div>
             <div class="card-body">
@@ -112,9 +149,61 @@
 .attachment-item i {
     color: var(--accent-blue);
 }
+.btn-success {
+    background: var(--accent-green);
+    color: white;
+}
+.btn-success:hover {
+    background: #059669;
+}
 </style>
 
 <script>
+{% if ticket.due_date and ticket.status not in ['Resolved', 'Closed'] %}
+const dueDate = new Date("{{ ticket.due_date.isoformat() }}Z");
+const slaCard = document.getElementById('slaCard');
+const slaTimer = document.getElementById('slaTimer');
+const slaStatus = document.getElementById('slaStatus');
+
+function updateTimer() {
+    const now = new Date();
+    const diff = dueDate - now;
+    
+    if (diff <= 0) {
+        const overdue = Math.abs(diff);
+        const hours = Math.floor(overdue / (1000 * 60 * 60));
+        const minutes = Math.floor((overdue % (1000 * 60 * 60)) / (1000 * 60));
+        slaTimer.innerHTML = `<span style="color: #ef4444;">OVERDUE</span>`;
+        slaStatus.innerHTML = `<span style="color: #ef4444;">by ${hours}h ${minutes}m</span>`;
+        slaCard.style.borderColor = '#ef4444';
+        slaCard.style.background = 'rgba(239, 68, 68, 0.1)';
+    } else {
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        if (hours < 1) {
+            slaTimer.style.color = '#ef4444';
+            slaCard.style.borderColor = '#ef4444';
+            slaStatus.innerHTML = '<span style="color: #ef4444;">⚠️ Critical - Respond Now!</span>';
+        } else if (hours < 4) {
+            slaTimer.style.color = '#f59e0b';
+            slaCard.style.borderColor = '#f59e0b';
+            slaStatus.innerHTML = '<span style="color: #f59e0b;">⏰ Attention Needed</span>';
+        } else {
+            slaTimer.style.color = '#10b981';
+            slaCard.style.borderColor = '#10b981';
+            slaStatus.innerHTML = '<span style="color: #10b981;">✓ On Track</span>';
+        }
+        
+        slaTimer.textContent = `${hours}h ${minutes}m ${seconds}s`;
+    }
+}
+
+updateTimer();
+setInterval(updateTimer, 1000);
+{% endif %}
+
 function getAISuggestion() {
     const btn = document.getElementById('aiBtn');
     const originalText = btn.innerHTML;

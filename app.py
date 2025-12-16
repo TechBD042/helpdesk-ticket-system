@@ -58,6 +58,7 @@ class Ticket(db.Model):
     contact_method = db.Column(db.String(50))
     location = db.Column(db.String(100))
     asset_tag = db.Column(db.String(50))
+    satisfaction_rating = db.Column(db.String(20), nullable=True)  # 'positive' or 'negative'
     
     comments = db.relationship('TicketComment', backref='ticket', lazy=True, order_by='TicketComment.created_at')
 
@@ -713,3 +714,27 @@ def uploaded_file(filename):
 # Create attachment table
 with app.app_context():
     db.create_all()
+
+
+# =============================================================================
+# CUSTOMER SATISFACTION
+# =============================================================================
+
+@app.route('/tickets/<int:ticket_id>/rate', methods=['POST'])
+@login_required
+def rate_ticket(ticket_id):
+    ticket = Ticket.query.get_or_404(ticket_id)
+    user = get_current_user()
+    
+    # Only the requester can rate
+    if user.id != ticket.requester_id:
+        flash('Only the ticket requester can rate.', 'danger')
+        return redirect(url_for('view_ticket', ticket_id=ticket_id))
+    
+    rating = request.form.get('rating')
+    if rating in ['positive', 'negative']:
+        ticket.satisfaction_rating = rating
+        db.session.commit()
+        flash('Thank you for your feedback!', 'success')
+    
+    return redirect(url_for('view_ticket', ticket_id=ticket_id))
