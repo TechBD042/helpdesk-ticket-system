@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - HelpDesk Pro</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-primary: #0a0a0f; --bg-secondary: #12121a; --bg-tertiary: #1a1a24; --border-color: #2a2a3a; --text-primary: #e8e8ed; --text-secondary: #9898a8; --accent-blue: #3b82f6; --accent-purple: #8b5cf6; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+        .register-container { width: 100%; max-width: 420px; }
+        .register-header { text-align: center; margin-bottom: 2rem; }
+        .logo { display: inline-flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; text-decoration: none; color: var(--text-primary); }
+        .logo-icon { width: 56px; height: 56px; background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; color: white; }
+        .logo-text { font-weight: 700; font-size: 1.75rem; }
+        .register-subtitle { color: var(--text-secondary); }
+        .register-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; padding: 2rem; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-label { display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-secondary); }
+        .form-control { width: 100%; padding: 0.875rem 1rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 1rem; font-family: inherit; }
+        .form-control:focus { outline: none; border-color: var(--accent-blue); }
+        .btn { width: 100%; padding: 0.875rem; background: var(--accent-blue); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+        .alert-danger { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; }
+        .register-footer { text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.9rem; }
+        .register-footer a { color: var(--accent-blue); text-decoration: none; font-weight: 500; }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-header">
+            <a href="{{ url_for('login') }}" class="logo"><div class="logo-icon"><i class="fas fa-headset"></i></div><span class="logo-text">HelpDesk Pro</span></a>
+            <p class="register-subtitle">Create your account</p>
+        </div>
+        <div class="register-card">
+            {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}{% for category, message in messages %}<div class="alert alert-{{ category }}">{{ message }}</div>{% endfor %}{% endif %}{% endwith %}
+            <form method="POST">
+                <div class="form-group"><label class="form-label">Username</label><input type="text" name="username" class="form-control" placeholder="Choose a username" required></div>
+                <div class="form-group"><label class="form-label">Email Address</label><input type="email" name="email" class="form-control" placeholder="your.email@company.com" required></div>
+                <div class="form-group"><label class="form-label">Department</label><select name="department" class="form-control"><option value="">Select Department</option><option value="IT">IT</option><option value="HR">Human Resources</option><option value="Finance">Finance</option><option value="Marketing">Marketing</option><option value="Sales">Sales</option><option value="Operations">Operations</option></select></div>
+                <div class="form-group"><label class="form-label">Password</label><input type="password" name="password" class="form-control" placeholder="Create a password" required></div>
+                <button type="submit" class="btn"><i class="fas fa-user-plus"></i> Create Account</button>
+            </form>
+            <div class="register-footer">Already have an account? <a href="{{ url_for('login') }}">Sign in</a></div>
+        </div>
+    </div>
+</body>
+</html>

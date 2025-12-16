@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Knowledge Base - HelpDesk Pro{% endblock %}
+{% block page_title %}Knowledge Base{% endblock %}
+{% block content %}
+<div class="filter-bar">
+    <div class="search-box" style="flex: 2;"><i class="fas fa-search"></i><input type="text" class="form-control" placeholder="Search knowledge base..." id="searchInput" value="{{ request.args.get('search', '') }}"></div>
+    <button class="btn btn-primary" onclick="searchKB()"><i class="fas fa-search"></i> Search</button>
+</div>
+{% if articles %}
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1rem;">
+    {% for article in articles %}
+    <div class="card">
+        <div class="card-body">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"><span class="badge" style="background: var(--bg-tertiary); color: var(--text-secondary);">{{ article.category }}</span><span class="text-small text-muted"><i class="fas fa-eye"></i> {{ article.views }}</span></div>
+            <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;"><a href="{{ url_for('view_article', article_id=article.id) }}" class="ticket-link">{{ article.title }}</a></h3>
+            <p class="text-secondary text-small">{{ article.content[:150]|striptags }}{% if article.content|length > 150 %}...{% endif %}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card"><div class="card-body"><div class="empty-state"><i class="fas fa-book-open"></i><p>No articles found</p></div></div></div>
+{% endif %}
+<script>function searchKB() { const search = document.getElementById('searchInput').value; window.location.href = '{{ url_for("knowledge_base") }}?search=' + encodeURIComponent(search); } document.getElementById('searchInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') searchKB(); });</script>
+{% endblock %}

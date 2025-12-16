@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}HelpDesk Pro{% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a24;
+            --bg-card: #16161f;
+            --border-color: #2a2a3a;
+            --text-primary: #e8e8ed;
+            --text-secondary: #9898a8;
+            --text-muted: #5a5a6a;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-yellow: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-purple: #8b5cf6;
+            --accent-cyan: #06b6d4;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; line-height: 1.6; }
+        .app-container { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: var(--bg-secondary); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 100; }
+        .sidebar-header { padding: 1.5rem; border-bottom: 1px solid var(--border-color); }
+        .logo { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--text-primary); }
+        .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+        .logo-text { font-weight: 700; font-size: 1.25rem; }
+        .sidebar-nav { flex: 1; padding: 1rem 0; overflow-y: auto; }
+        .nav-section { margin-bottom: 1.5rem; }
+        .nav-section-title { padding: 0.5rem 1.5rem; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+        .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; border-left: 3px solid transparent; }
+        .nav-link:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+        .nav-link.active { background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); border-left-color: var(--accent-blue); }
+        .nav-link i { width: 20px; text-align: center; }
+        .sidebar-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border-color); }
+        .user-info { display: flex; align-items: center; gap: 0.75rem; }
+        .user-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        .user-details { flex: 1; }
+        .user-name { font-weight: 600; font-size: 0.9rem; }
+        .user-role { font-size: 0.75rem; color: var(--text-muted); text-transform: capitalize; }
+        .main-content { flex: 1; margin-left: 260px; min-height: 100vh; }
+        .content-header { padding: 1.5rem 2rem; border-bottom: 1px solid var(--border-color); background: var(--bg-secondary); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+        .page-title { font-size: 1.5rem; font-weight: 700; }
+        .content-body { padding: 2rem; }
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; }
+        .card-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+        .card-title { font-weight: 600; font-size: 1rem; }
+        .card-body { padding: 1.25rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; display: flex; align-items: flex-start; gap: 1rem; }
+        .stat-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+        .stat-icon.blue { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+        .stat-icon.green { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
+        .stat-icon.yellow { background: rgba(245, 158, 11, 0.15); color: var(--accent-yellow); }
+        .stat-icon.red { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+        .stat-icon.purple { background: rgba(139, 92, 246, 0.15); color: var(--accent-purple); }
+        .stat-value { font-size: 1.75rem; font-weight: 700; line-height: 1; margin-bottom: 0.25rem; }
+        .stat-label { font-size: 0.85rem; color: var(--text-secondary); }
+        .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.25rem; border-radius: 8px; font-size: 0.9rem; font-weight: 500; text-decoration: none; border: none; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .btn-primary { background: var(--accent-blue); color: white; }
+        .btn-primary:hover { background: #2563eb; }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-sm { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
+        .btn-success { background: var(--accent-green); color: white; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-label { display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-secondary); }
+        .form-control { width: 100%; padding: 0.75rem 1rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 0.9rem; font-family: inherit; }
+        .form-control:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+        textarea.form-control { min-height: 120px; resize: vertical; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.875rem 1rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); background: var(--bg-tertiary); }
+        tr:hover { background: var(--bg-tertiary); }
+        .badge { display: inline-flex; padding: 0.25rem 0.625rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+        .badge-critical { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+        .badge-high { background: rgba(245, 158, 11, 0.15); color: var(--accent-yellow); }
+        .badge-medium { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+        .badge-low { background: rgba(107, 114, 128, 0.15); color: #9ca3af; }
+        .badge-open { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+        .badge-in-progress { background: rgba(245, 158, 11, 0.15); color: var(--accent-yellow); }
+        .badge-pending { background: rgba(139, 92, 246, 0.15); color: var(--accent-purple); }
+        .badge-resolved { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
+        .badge-closed { background: rgba(107, 114, 128, 0.15); color: #9ca3af; }
+        .alert { padding: 1rem 1.25rem; border-radius: 8px; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem; }
+        .alert-success { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--accent-green); }
+        .alert-danger { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--accent-red); }
+        .alert-warning { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: var(--accent-yellow); }
+        .alert-info { background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: var(--accent-blue); }
+        .text-muted { color: var(--text-muted); }
+        .text-secondary { color: var(--text-secondary); }
+        .text-small { font-size: 0.85rem; }
+        .text-mono { font-family: 'IBM Plex Mono', monospace; }
+        .mt-2 { margin-top: 1rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .ticket-link { color: var(--accent-blue); text-decoration: none; font-weight: 500; }
+        .ticket-link:hover { text-decoration: underline; }
+        .ticket-number { font-family: 'IBM Plex Mono', monospace; font-size: 0.85rem; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+        @media (max-width: 1024px) { .grid-2 { grid-template-columns: 1fr; } }
+        .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
+        .empty-state i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+        .filter-bar { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center; }
+        .filter-bar .form-control { width: auto; min-width: 150px; }
+        .search-box { flex: 1; min-width: 200px; position: relative; }
+        .search-box input { padding-left: 2.5rem; }
+        .search-box i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        .comment { padding: 1rem; background: var(--bg-tertiary); border-radius: 8px; margin-bottom: 1rem; }
+        .comment-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
+        .comment-avatar { width: 32px; height: 32px; background: var(--accent-purple); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.8rem; }
+        .comment-author { font-weight: 600; font-size: 0.9rem; }
+        .comment-time { font-size: 0.75rem; color: var(--text-muted); }
+        .comment-internal { background: rgba(245, 158, 11, 0.1); border-left: 3px solid var(--accent-yellow); }
+        .internal-badge { font-size: 0.7rem; background: var(--accent-yellow); color: var(--bg-primary); padding: 0.15rem 0.4rem; border-radius: 4px; font-weight: 600; }
+        .checkbox-label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem; }
+        .checkbox-label input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent-blue); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="{{ url_for('dashboard') }}" class="logo">
+                    <div class="logo-icon"><i class="fas fa-headset"></i></div>
+                    <span class="logo-text">HelpDesk Pro</span>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+                    <a href="{{ url_for('ticket_list') }}" class="nav-link {% if 'ticket' in request.endpoint %}active{% endif %}"><i class="fas fa-ticket-alt"></i><span>Tickets</span></a>
+                    <a href="{{ url_for('create_ticket') }}" class="nav-link"><i class="fas fa-plus-circle"></i><span>New Ticket</span></a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Resources</div>
+                    <a href="{{ url_for('knowledge_base') }}" class="nav-link {% if 'knowledge' in request.endpoint or 'article' in request.endpoint %}active{% endif %}"><i class="fas fa-book"></i><span>Knowledge Base</span></a>
+                </div>
+                {% if session.get('role') in ['technician', 'admin'] %}
+                <div class="nav-section">
+                    <div class="nav-section-title">Administration</div>
+                    <a href="{{ url_for('reports') }}" class="nav-link {% if request.endpoint == 'reports' %}active{% endif %}"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+                    <a href="{{ url_for('create_article') }}" class="nav-link"><i class="fas fa-file-alt"></i><span>New KB Article</span></a>
+                </div>
+                {% endif %}
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">{{ session.get('username', 'U')[0].upper() }}</div>
+                    <div class="user-details">
+                        <div class="user-name">{{ session.get('username', 'User') }}</div>
+                        <div class="user-role">{{ session.get('role', 'user') }}</div>
+                    </div>
+                    <a href="{{ url_for('logout') }}" class="btn btn-sm btn-secondary" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
+                </div>
+            </div>
+        </aside>
+        <main class="main-content">
+            <header class="content-header">
+                <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+                {% block header_actions %}{% endblock %}
+            </header>
+            <div class="content-body">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}"><i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %}"></i>{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>

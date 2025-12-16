@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Tickets - HelpDesk Pro{% endblock %}
+{% block page_title %}Tickets{% endblock %}
+{% block header_actions %}<a href="{{ url_for('create_ticket') }}" class="btn btn-primary"><i class="fas fa-plus"></i> New Ticket</a>{% endblock %}
+{% block content %}
+<div class="filter-bar">
+    <div class="search-box"><i class="fas fa-search"></i><input type="text" class="form-control" placeholder="Search tickets..." id="searchInput" value="{{ filters.search }}"></div>
+    <select class="form-control" id="statusFilter"><option value="">All Statuses</option><option value="Open" {% if filters.status == 'Open' %}selected{% endif %}>Open</option><option value="In Progress" {% if filters.status == 'In Progress' %}selected{% endif %}>In Progress</option><option value="Pending" {% if filters.status == 'Pending' %}selected{% endif %}>Pending</option><option value="Resolved" {% if filters.status == 'Resolved' %}selected{% endif %}>Resolved</option><option value="Closed" {% if filters.status == 'Closed' %}selected{% endif %}>Closed</option></select>
+    <select class="form-control" id="priorityFilter"><option value="">All Priorities</option><option value="Critical" {% if filters.priority == 'Critical' %}selected{% endif %}>Critical</option><option value="High" {% if filters.priority == 'High' %}selected{% endif %}>High</option><option value="Medium" {% if filters.priority == 'Medium' %}selected{% endif %}>Medium</option><option value="Low" {% if filters.priority == 'Low' %}selected{% endif %}>Low</option></select>
+    <button class="btn btn-secondary" onclick="applyFilters()"><i class="fas fa-filter"></i> Apply</button>
+    <button class="btn btn-secondary" onclick="window.location.href='{{ url_for('ticket_list') }}'"><i class="fas fa-times"></i> Clear</button>
+</div>
+<div class="card">
+    <div class="card-body" style="padding: 0;">
+        {% if tickets %}<table><thead><tr><th>Ticket #</th><th>Subject</th><th>Category</th><th>Priority</th><th>Status</th><th>Requester</th>{% if user.role in ['technician', 'admin'] %}<th>Assignee</th>{% endif %}<th>Created</th></tr></thead><tbody>{% for ticket in tickets %}<tr><td><a href="{{ url_for('view_ticket', ticket_id=ticket.id) }}" class="ticket-link ticket-number">{{ ticket.ticket_number }}</a></td><td><a href="{{ url_for('view_ticket', ticket_id=ticket.id) }}" class="ticket-link">{{ ticket.subject[:50] }}{% if ticket.subject|length > 50 %}...{% endif %}</a></td><td class="text-secondary">{{ ticket.category }}</td><td><span class="badge badge-{{ ticket.priority|lower }}">{{ ticket.priority }}</span></td><td><span class="badge badge-{{ ticket.status|lower|replace(' ', '-') }}">{{ ticket.status }}</span></td><td>{{ ticket.requester.username }}</td>{% if user.role in ['technician', 'admin'] %}<td>{% if ticket.assignee %}{{ ticket.assignee.username }}{% else %}<span class="text-muted">Unassigned</span>{% endif %}</td>{% endif %}<td class="text-muted text-small">{{ ticket.created_at.strftime('%m/%d/%Y') }}</td></tr>{% endfor %}</tbody></table>{% else %}<div class="empty-state"><i class="fas fa-ticket-alt"></i><p>No tickets found</p></div>{% endif %}
+    </div>
+</div>
+<script>
+function applyFilters() { const params = new URLSearchParams(); const search = document.getElementById('searchInput').value; const status = document.getElementById('statusFilter').value; const priority = document.getElementById('priorityFilter').value; if (search) params.set('search', search); if (status) params.set('status', status); if (priority) params.set('priority', priority); window.location.href = '{{ url_for("ticket_list") }}?' + params.toString(); }
+document.getElementById('searchInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') applyFilters(); });
+</script>
+{% endblock %}

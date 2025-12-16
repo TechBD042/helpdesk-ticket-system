@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - HelpDesk Pro{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block header_actions %}<a href="{{ url_for('create_ticket') }}" class="btn btn-primary"><i class="fas fa-plus"></i> New Ticket</a>{% endblock %}
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-ticket-alt"></i></div><div class="stat-content"><div class="stat-value">{{ stats.total }}</div><div class="stat-label">Total Tickets</div></div></div>
+    <div class="stat-card"><div class="stat-icon yellow"><i class="fas fa-folder-open"></i></div><div class="stat-content"><div class="stat-value">{{ stats.open }}</div><div class="stat-label">Open</div></div></div>
+    <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-spinner"></i></div><div class="stat-content"><div class="stat-value">{{ stats.in_progress }}</div><div class="stat-label">In Progress</div></div></div>
+    <div class="stat-card"><div class="stat-icon red"><i class="fas fa-clock"></i></div><div class="stat-content"><div class="stat-value">{{ stats.pending }}</div><div class="stat-label">Pending</div></div></div>
+    {% if user.role in ['technician', 'admin'] %}<div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-content"><div class="stat-value">{{ stats.resolved_today }}</div><div class="stat-label">Resolved Today</div></div></div>{% endif %}
+</div>
+<div class="grid-2">
+    <div class="card">
+        <div class="card-header"><h3 class="card-title"><i class="fas fa-tasks"></i> {% if user.role in ['technician', 'admin'] %}My Assigned Tickets{% else %}My Tickets{% endif %}</h3><a href="{{ url_for('ticket_list') }}" class="btn btn-sm btn-secondary">View All</a></div>
+        <div class="card-body" style="padding: 0;">
+            {% if my_tickets %}<table><thead><tr><th>Ticket</th><th>Subject</th><th>Priority</th><th>Status</th></tr></thead><tbody>{% for ticket in my_tickets %}<tr><td><a href="{{ url_for('view_ticket', ticket_id=ticket.id) }}" class="ticket-link ticket-number">{{ ticket.ticket_number }}</a></td><td>{{ ticket.subject[:40] }}{% if ticket.subject|length > 40 %}...{% endif %}</td><td><span class="badge badge-{{ ticket.priority|lower }}">{{ ticket.priority }}</span></td><td><span class="badge badge-{{ ticket.status|lower|replace(' ', '-') }}">{{ ticket.status }}</span></td></tr>{% endfor %}</tbody></table>{% else %}<div class="empty-state"><i class="fas fa-inbox"></i><p>No active tickets</p></div>{% endif %}
+        </div>
+    </div>
+    {% if user.role in ['technician', 'admin'] %}
+    <div class="card">
+        <div class="card-header"><h3 class="card-title"><i class="fas fa-user-clock"></i> Unassigned Tickets</h3></div>
+        <div class="card-body" style="padding: 0;">
+            {% if unassigned %}<table><thead><tr><th>Ticket</th><th>Subject</th><th>Priority</th></tr></thead><tbody>{% for ticket in unassigned %}<tr><td><a href="{{ url_for('view_ticket', ticket_id=ticket.id) }}" class="ticket-link ticket-number">{{ ticket.ticket_number }}</a></td><td>{{ ticket.subject[:40] }}{% if ticket.subject|length > 40 %}...{% endif %}</td><td><span class="badge badge-{{ ticket.priority|lower }}">{{ ticket.priority }}</span></td></tr>{% endfor %}</tbody></table>{% else %}<div class="empty-state"><i class="fas fa-check"></i><p>All tickets assigned!</p></div>{% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="card">
+        <div class="card-header"><h3 class="card-title"><i class="fas fa-bolt"></i> Quick Actions</h3></div>
+        <div class="card-body">
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <a href="{{ url_for('create_ticket') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Submit New Ticket</a>
+                <a href="{{ url_for('knowledge_base') }}" class="btn btn-secondary"><i class="fas fa-book"></i> Search Knowledge Base</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

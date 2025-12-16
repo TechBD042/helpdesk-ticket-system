@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Create Article - HelpDesk Pro{% endblock %}
+{% block page_title %}Create Knowledge Base Article{% endblock %}
+{% block content %}
+<div style="max-width: 900px;">
+    <div class="card">
+        <div class="card-header"><h3 class="card-title"><i class="fas fa-file-alt"></i> New Article</h3></div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="form-group"><label class="form-label">Title *</label><input type="text" name="title" class="form-control" placeholder="Article title" required></div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group"><label class="form-label">Category *</label><select name="category" class="form-control" required><option value="">Select</option><option value="Account Access">Account Access</option><option value="Hardware">Hardware</option><option value="Software">Software</option><option value="Network">Network</option><option value="Email">Email</option><option value="VPN">VPN</option></select></div>
+                    <div class="form-group"><label class="form-label">Tags</label><input type="text" name="tags" class="form-control" placeholder="password, reset, login"></div>
+                </div>
+                <div class="form-group"><label class="form-label">Content *</label><textarea name="content" class="form-control" rows="15" placeholder="## Overview..." required></textarea></div>
+                <div style="display: flex; gap: 1rem;"><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Publish</button><a href="{{ url_for('knowledge_base') }}" class="btn btn-secondary">Cancel</a></div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

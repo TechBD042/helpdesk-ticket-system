@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ article.title }} - Knowledge Base{% endblock %}
+{% block page_title %}Knowledge Base{% endblock %}
+{% block header_actions %}<a href="{{ url_for('knowledge_base') }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>{% endblock %}
+{% block content %}
+<div style="max-width: 900px;">
+    <div class="card">
+        <div class="card-header"><div><span class="badge" style="background: var(--bg-tertiary); color: var(--text-secondary);">{{ article.category }}</span><h2 style="font-size: 1.5rem; margin-top: 0.5rem;">{{ article.title }}</h2></div></div>
+        <div class="card-body"><div style="line-height: 1.8; color: var(--text-secondary);">{{ article.content|safe }}</div></div>
+    </div>
+    <div class="card mt-2">
+        <div class="card-header"><h3 class="card-title"><i class="fas fa-question-circle"></i> Still Need Help?</h3></div>
+        <div class="card-body"><p class="text-secondary mb-2">If this didn't solve your problem, submit a support ticket.</p><a href="{{ url_for('create_ticket') }}" class="btn btn-primary"><i class="fas fa-ticket-alt"></i> Submit a Ticket</a></div>
+    </div>
+</div>
+{% endblock %}

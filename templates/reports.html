@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Reports - HelpDesk Pro{% endblock %}
+{% block page_title %}Reports & Analytics{% endblock %}
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-ticket-alt"></i></div><div class="stat-content"><div class="stat-value">{{ total }}</div><div class="stat-label">Total Tickets</div></div></div>
+    <div class="stat-card"><div class="stat-icon green"><i class="fas fa-plus-circle"></i></div><div class="stat-content"><div class="stat-value">{{ weekly_created }}</div><div class="stat-label">Created This Week</div></div></div>
+    <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-check-circle"></i></div><div class="stat-content"><div class="stat-value">{{ weekly_resolved }}</div><div class="stat-label">Resolved This Week</div></div></div>
+</div>
+<div class="grid-2">
+    <div class="card">
+        <div class="card-header"><h3 class="card-title"><i class="fas fa-chart-pie"></i> Tickets by Status</h3></div>
+        <div class="card-body">
+            {% for status, count in by_status.items() %}<div style="margin-bottom: 1rem;"><div style="display: flex; justify-content: space-between;"><span>{{ status }}</span><span class="text-muted">{{ count }}</span></div><div style="height: 8px; background: var(--bg-tertiary); border-radius: 4px;"><div style="height: 100%; width: {{ (count / total * 100) if total > 0 else 0 }}%; background: var(--accent-blue); border-radius: 4px;"></div></div></div>{% endfor %}
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header"><h3 class="card-title"><i class="fas fa-exclamation-triangle"></i> Tickets by Priority</h3></div>
+        <div class="card-body">
+            {% for priority in ['Critical', 'High', 'Medium', 'Low'] %}{% set count = by_priority.get(priority, 0) %}<div style="margin-bottom: 1rem;"><div style="display: flex; justify-content: space-between;"><span class="badge badge-{{ priority|lower }}">{{ priority }}</span><span class="text-muted">{{ count }}</span></div><div style="height: 8px; background: var(--bg-tertiary); border-radius: 4px;"><div style="height: 100%; width: {{ (count / total * 100) if total > 0 else 0 }}%; background: {% if priority == 'Critical' %}var(--accent-red){% elif priority == 'High' %}var(--accent-yellow){% else %}var(--accent-blue){% endif %}; border-radius: 4px;"></div></div></div>{% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
