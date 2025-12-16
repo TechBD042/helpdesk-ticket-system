@@ -10,6 +10,24 @@
     <div class="stat-card"><div class="stat-icon red"><i class="fas fa-clock"></i></div><div class="stat-content"><div class="stat-value">{{ stats.pending }}</div><div class="stat-label">Pending</div></div></div>
     {% if user.role in ['technician', 'admin'] %}<div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-content"><div class="stat-value">{{ stats.resolved_today }}</div><div class="stat-label">Resolved Today</div></div></div>{% endif %}
 </div>
+
+{% if user.role in ['technician', 'admin'] %}
+<div class="grid-2" style="margin-bottom: 2rem;">
+    <div class="card">
+        <div class="card-header"><h3 class="card-title"><i class="fas fa-chart-pie"></i> Tickets by Status</h3></div>
+        <div class="card-body" style="height: 280px; display: flex; align-items: center; justify-content: center;">
+            <canvas id="statusChart"></canvas>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header"><h3 class="card-title"><i class="fas fa-chart-bar"></i> Tickets by Priority</h3></div>
+        <div class="card-body" style="height: 280px; display: flex; align-items: center; justify-content: center;">
+            <canvas id="priorityChart"></canvas>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <div class="grid-2">
     <div class="card">
         <div class="card-header"><h3 class="card-title"><i class="fas fa-tasks"></i> {% if user.role in ['technician', 'admin'] %}My Assigned Tickets{% else %}My Tickets{% endif %}</h3><a href="{{ url_for('ticket_list') }}" class="btn btn-sm btn-secondary">View All</a></div>
@@ -36,4 +54,64 @@
     </div>
     {% endif %}
 </div>
+
+{% if user.role in ['technician', 'admin'] %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const statusCtx = document.getElementById('statusChart').getContext('2d');
+new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Open', 'In Progress', 'Pending', 'Resolved', 'Closed'],
+        datasets: [{
+            data: [{{ stats.open }}, {{ stats.in_progress }}, {{ stats.pending }}, {{ stats.resolved }}, {{ stats.closed }}],
+            backgroundColor: ['#3b82f6', '#f59e0b', '#8b5cf6', '#10b981', '#6b7280'],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: { color: '#9898a8', padding: 15, font: { size: 11 } }
+            }
+        }
+    }
+});
+
+const priorityCtx = document.getElementById('priorityChart').getContext('2d');
+new Chart(priorityCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Critical', 'High', 'Medium', 'Low'],
+        datasets: [{
+            label: 'Tickets',
+            data: [{{ stats.critical }}, {{ stats.high }}, {{ stats.medium }}, {{ stats.low }}],
+            backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#6b7280'],
+            borderRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { color: '#9898a8', stepSize: 1 },
+                grid: { color: '#2a2a3a' }
+            },
+            x: {
+                ticks: { color: '#9898a8' },
+                grid: { display: false }
+            }
+        }
+    }
+});
+</script>
+{% endif %}
 {% endblock %}

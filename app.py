@@ -219,12 +219,28 @@ def dashboard():
     
     recent_tickets = Ticket.query.order_by(Ticket.updated_at.desc()).limit(5).all()
     
+    # Get counts by status
+    resolved = Ticket.query.filter_by(status='Resolved').count()
+    closed = Ticket.query.filter_by(status='Closed').count()
+    
+    # Get counts by priority  
+    critical = Ticket.query.filter_by(priority='Critical').count()
+    high = Ticket.query.filter_by(priority='High').count()
+    medium = Ticket.query.filter_by(priority='Medium').count()
+    low = Ticket.query.filter_by(priority='Low').count()
+    
     stats = {
         'total': total_tickets,
         'open': open_tickets,
         'in_progress': in_progress,
         'pending': pending,
-        'resolved_today': resolved_today
+        'resolved_today': resolved_today,
+        'resolved': resolved,
+        'closed': closed,
+        'critical': critical,
+        'high': high,
+        'medium': medium,
+        'low': low
     }
     
     return render_template('dashboard.html', 
