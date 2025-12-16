@@ -7,7 +7,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-primary: #0a0a0f; --bg-secondary: #12121a; --bg-tertiary: #1a1a24; --border-color: #2a2a3a; --text-primary: #e8e8ed; --text-secondary: #9898a8; --text-muted: #5a5a6a; --accent-blue: #3b82f6; --accent-purple: #8b5cf6; }
+        :root { --bg-primary: #0a0a0f; --bg-secondary: #12121a; --bg-tertiary: #1a1a24; --border-color: #2a2a3a; --text-primary: #e8e8ed; --text-secondary: #9898a8; --accent-blue: #3b82f6; --accent-purple: #8b5cf6; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
         .login-container { width: 100%; max-width: 420px; }
@@ -28,12 +28,6 @@
         .alert-success { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; }
         .login-footer { text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.9rem; }
         .login-footer a { color: var(--accent-blue); text-decoration: none; font-weight: 500; }
-        .demo-accounts { margin-top: 2rem; padding: 1.25rem; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border-color); }
-        .demo-title { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.75rem; }
-        .demo-account { display: flex; justify-content: space-between; padding: 0.5rem 0; font-size: 0.85rem; border-bottom: 1px solid var(--border-color); }
-        .demo-account:last-child { border-bottom: none; }
-        .demo-role { color: var(--text-muted); }
-        .demo-creds { font-family: monospace; color: var(--accent-blue); }
     </style>
 </head>
 <body>
@@ -50,12 +44,6 @@
                 <button type="submit" class="btn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
             </form>
             <div class="login-footer">Don't have an account? <a href="{{ url_for('register') }}">Register here</a></div>
-        </div>
-        <div class="demo-accounts">
-            <div class="demo-title">Demo Accounts</div>
-            <div class="demo-account"><span class="demo-role">Admin</span><span class="demo-creds">admin / admin123</span></div>
-            <div class="demo-account"><span class="demo-role">Technician</span><span class="demo-creds">tech1 / tech123</span></div>
-            <div class="demo-account"><span class="demo-role">User</span><span class="demo-creds">jsmith / user123</span></div>
         </div>
     </div>
 </body>
