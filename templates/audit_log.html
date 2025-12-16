@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Audit Log - HelpDesk Pro{% endblock %}
+{% block page_title %}Audit Log{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-history"></i> System Activity Log</h3>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        {% if logs %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Details</th>
+                    <th>IP Address</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td class="text-small text-muted">{{ log.created_at.strftime('%b %d, %Y %I:%M %p') }}</td>
+                    <td>{{ log.user.username if log.user else 'System' }}</td>
+                    <td>
+                        <span class="badge 
+                            {% if 'login' in log.action %}badge-open
+                            {% elif 'created' in log.action %}badge-resolved
+                            {% elif 'updated' in log.action %}badge-in-progress
+                            {% elif 'deleted' in log.action %}badge-critical
+                            {% else %}badge-medium{% endif %}">
+                            {{ log.action|replace('_', ' ')|title }}
+                        </span>
+                    </td>
+                    <td class="text-secondary text-small">{{ log.details[:60] }}{% if log.details|length > 60 %}...{% endif %}</td>
+                    <td class="text-mono text-small text-muted">{{ log.ip_address or 'N/A' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-clipboard-list"></i>
+            <p>No audit logs yet</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

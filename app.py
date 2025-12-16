@@ -738,3 +738,87 @@ def rate_ticket(ticket_id):
         flash('Thank you for your feedback!', 'success')
     
     return redirect(url_for('view_ticket', ticket_id=ticket_id))
+
+
+# =============================================================================
+# TIME TRACKING
+# =============================================================================
+
+class TimeEntry(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ticket_id = db.Column(db.Integer, db.ForeignKey('ticket.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    minutes = db.Column(db.Integer, nullable=False)
+    description = db.Column(db.String(255))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    ticket = db.relationship('Ticket', backref='time_entries')
+    user = db.relationship('User')
+
+
+@app.route('/tickets/<int:ticket_id>/log-time', methods=['POST'])
+@login_required
+def log_time(ticket_id):
+    user = get_current_user()
+    if user.role not in ['technician', 'admin']:
+        flash('Only technicians can log time.', 'danger')
+        return redirect(url_for('view_ticket', ticket_id=ticket_id))
+    
+    minutes = int(request.form.get('minutes', 0))
+    description = request.form.get('description', '')
+    
+    if minutes > 0:
+        entry = TimeEntry(
+            ticket_id=ticket_id,
+            user_id=user.id,
+            minutes=minutes,
+            description=description
+        )
+        db.session.add(entry)
+        
+        # Log to audit
+        log_audit(user.id, 'time_logged', f'Logged {minutes} minutes on ticket #{ticket_id}')
+        
+        db.session.commit()
+        flash(f'Logged {minutes} minutes.', 'success')
+    
+    return redirect(url_for('view_ticket', ticket_id=ticket_id))
+
+
+# =============================================================================
+# AUDIT LOGS
+# =============================================================================
+
+class AuditLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    action = db.Column(db.String(50), nullable=False)
+    details = db.Column(db.String(500))
+    ip_address = db.Column(db.String(50))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    user = db.relationship('User')
+
+
+def log_audit(user_id, action, details):
+    """Helper function to create audit log entries"""
+    entry = AuditLog(
+        user_id=user_id,
+        action=action,
+        details=details,
+        ip_address=request.remote_addr if request else None
+    )
+    db.session.add(entry)
+
+
+@app.route('/admin/audit-log')
+@tech_required
+def audit_log():
+    user = get_current_user()
+    logs = AuditLog.query.order_by(AuditLog.created_at.desc()).limit(100).all()
+    return render_template('audit_log.html', logs=logs, user=user)
+
+
+# Create new tables
+with app.app_context():
+    db.create_all()

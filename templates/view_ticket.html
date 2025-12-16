@@ -15,9 +15,7 @@
         
         <!-- Attachments Section -->
         <div class="card mt-2">
-            <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-paperclip"></i> Attachments</h3>
-            </div>
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-paperclip"></i> Attachments</h3></div>
             <div class="card-body">
                 {% if ticket.attachments %}
                 <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
@@ -31,52 +29,39 @@
                 {% else %}
                 <p class="text-muted text-small" style="margin-bottom: 1rem;">No attachments yet</p>
                 {% endif %}
-                
                 <form method="POST" action="{{ url_for('upload_file', ticket_id=ticket.id) }}" enctype="multipart/form-data" style="display: flex; gap: 0.5rem; align-items: center;">
-                    <input type="file" name="file" class="form-control" style="flex: 1;" accept=".png,.jpg,.jpeg,.gif,.pdf,.doc,.docx,.txt,.csv,.xlsx">
+                    <input type="file" name="file" class="form-control" style="flex: 1;">
                     <button type="submit" class="btn btn-sm btn-secondary"><i class="fas fa-upload"></i> Upload</button>
                 </form>
             </div>
         </div>
         
-        <!-- Satisfaction Rating (show after resolved) -->
+        <!-- Satisfaction Rating -->
         {% if ticket.status == 'Resolved' and user.id == ticket.requester_id and not ticket.satisfaction_rating %}
         <div class="card mt-2" style="border: 2px solid var(--accent-blue);">
             <div class="card-header"><h3 class="card-title"><i class="fas fa-star"></i> Rate Your Support Experience</h3></div>
             <div class="card-body">
-                <p class="text-secondary" style="margin-bottom: 1rem;">How was your experience with IT support on this ticket?</p>
+                <p class="text-secondary" style="margin-bottom: 1rem;">How was your experience?</p>
                 <div style="display: flex; gap: 1rem;">
-                    <form method="POST" action="{{ url_for('rate_ticket', ticket_id=ticket.id) }}" style="display: inline;">
-                        <input type="hidden" name="rating" value="positive">
-                        <button type="submit" class="btn btn-success" style="font-size: 1.5rem; padding: 1rem 2rem;"><i class="fas fa-thumbs-up"></i> Great!</button>
-                    </form>
-                    <form method="POST" action="{{ url_for('rate_ticket', ticket_id=ticket.id) }}" style="display: inline;">
-                        <input type="hidden" name="rating" value="negative">
-                        <button type="submit" class="btn btn-secondary" style="font-size: 1.5rem; padding: 1rem 2rem;"><i class="fas fa-thumbs-down"></i> Needs Improvement</button>
-                    </form>
+                    <form method="POST" action="{{ url_for('rate_ticket', ticket_id=ticket.id) }}"><input type="hidden" name="rating" value="positive"><button type="submit" class="btn btn-success" style="font-size: 1.25rem; padding: 0.75rem 1.5rem;"><i class="fas fa-thumbs-up"></i> Great!</button></form>
+                    <form method="POST" action="{{ url_for('rate_ticket', ticket_id=ticket.id) }}"><input type="hidden" name="rating" value="negative"><button type="submit" class="btn btn-secondary" style="font-size: 1.25rem; padding: 0.75rem 1.5rem;"><i class="fas fa-thumbs-down"></i> Needs Work</button></form>
                 </div>
             </div>
         </div>
         {% elif ticket.satisfaction_rating %}
-        <div class="card mt-2">
-            <div class="card-body" style="text-align: center; padding: 1rem;">
-                <span class="text-muted"><i class="fas fa-{% if ticket.satisfaction_rating == 'positive' %}thumbs-up" style="color: var(--accent-green){% else %}thumbs-down" style="color: var(--accent-red){% endif %};"></i> Feedback submitted - Thank you!</span>
-            </div>
-        </div>
+        <div class="card mt-2"><div class="card-body" style="text-align: center;"><span class="text-muted"><i class="fas fa-{% if ticket.satisfaction_rating == 'positive' %}thumbs-up" style="color: var(--accent-green){% else %}thumbs-down" style="color: var(--accent-red){% endif %};"></i> Feedback submitted!</span></div></div>
         {% endif %}
         
+        <!-- Comments -->
         <div class="card mt-2">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-comments"></i> Activity & Comments</h3>
                 {% if user.role in ['technician', 'admin'] %}
-                <button type="button" class="btn btn-sm btn-secondary" onclick="getAISuggestion()" id="aiBtn">
-                    <i class="fas fa-magic"></i> AI Suggest
-                </button>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="getAISuggestion()" id="aiBtn"><i class="fas fa-magic"></i> AI Suggest</button>
                 {% endif %}
             </div>
             <div class="card-body">
                 {% if ticket.comments %}{% for comment in ticket.comments %}{% if not comment.is_internal or user.role in ['technician', 'admin'] %}<div class="comment {% if comment.is_internal %}comment-internal{% endif %}"><div class="comment-header"><div class="comment-avatar">{{ comment.user.username[0].upper() }}</div><div><div class="comment-author">{{ comment.user.username }} {% if comment.is_internal %}<span class="internal-badge">Internal</span>{% endif %}</div><div class="comment-time">{{ comment.created_at.strftime('%b %d, %Y %I:%M %p') }}</div></div></div><div style="white-space: pre-wrap; margin-top: 0.5rem;">{{ comment.content }}</div></div>{% endif %}{% endfor %}{% else %}<div class="empty-state" style="padding: 2rem;"><i class="fas fa-comment-slash"></i><p>No comments yet</p></div>{% endif %}
-                
                 <form method="POST" action="{{ url_for('add_comment', ticket_id=ticket.id) }}" style="margin-top: 1rem;">
                     <div class="form-group"><textarea name="content" id="commentBox" class="form-control" rows="4" placeholder="Add a comment..." required></textarea></div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -88,13 +73,35 @@
         </div>
     </div>
     <div>
-        <!-- SLA Timer Card -->
+        <!-- SLA Timer -->
         {% if ticket.due_date and ticket.status not in ['Resolved', 'Closed'] %}
         <div class="card" id="slaCard" style="margin-bottom: 1rem;">
             <div class="card-body" style="text-align: center; padding: 1.25rem;">
                 <div class="text-small text-muted" style="margin-bottom: 0.5rem;">SLA DEADLINE</div>
                 <div id="slaTimer" style="font-size: 1.75rem; font-weight: 700; font-family: 'IBM Plex Mono', monospace;"></div>
                 <div id="slaStatus" class="text-small" style="margin-top: 0.5rem;"></div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Time Tracking -->
+        {% if user.role in ['technician', 'admin'] %}
+        <div class="card" style="margin-bottom: 1rem;">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-clock"></i> Time Tracking</h3></div>
+            <div class="card-body">
+                <div style="text-align: center; margin-bottom: 1rem;">
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--accent-blue);">
+                        {{ (ticket.time_entries|sum(attribute='minutes') // 60) }}h {{ (ticket.time_entries|sum(attribute='minutes') % 60) }}m
+                    </div>
+                    <div class="text-small text-muted">Total Time Logged</div>
+                </div>
+                <form method="POST" action="{{ url_for('log_time', ticket_id=ticket.id) }}">
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <input type="number" name="minutes" class="form-control" placeholder="Minutes" min="1" max="480" required style="width: 100px;">
+                        <input type="text" name="description" class="form-control" placeholder="What did you work on?">
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-secondary" style="width: 100%;"><i class="fas fa-plus"></i> Log Time</button>
+                </form>
             </div>
         </div>
         {% endif %}
@@ -107,8 +114,6 @@
                     <div><div class="text-small text-muted">Category</div><div>{{ ticket.category }}</div></div>
                     <div><div class="text-small text-muted">Created</div><div>{{ ticket.created_at.strftime('%b %d, %Y %I:%M %p') }}</div></div>
                     <div><div class="text-small text-muted">Assigned To</div><div>{{ ticket.assignee.username if ticket.assignee else 'Unassigned' }}</div></div>
-                    {% if ticket.location %}<div><div class="text-small text-muted">Location</div><div>{{ ticket.location }}</div></div>{% endif %}
-                    {% if ticket.asset_tag %}<div><div class="text-small text-muted">Asset Tag</div><div class="text-mono">{{ ticket.asset_tag }}</div></div>{% endif %}
                 </div>
             </div>
         </div>
@@ -129,102 +134,46 @@
 </div>
 
 <style>
-.attachment-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    color: var(--text-primary);
-    text-decoration: none;
-    font-size: 0.85rem;
-    transition: all 0.2s;
-}
-.attachment-item:hover {
-    border-color: var(--accent-blue);
-    color: var(--accent-blue);
-}
-.attachment-item i {
-    color: var(--accent-blue);
-}
-.btn-success {
-    background: var(--accent-green);
-    color: white;
-}
-.btn-success:hover {
-    background: #059669;
-}
+.attachment-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); text-decoration: none; font-size: 0.85rem; }
+.attachment-item:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+.btn-success { background: var(--accent-green); color: white; }
 </style>
 
 <script>
 {% if ticket.due_date and ticket.status not in ['Resolved', 'Closed'] %}
 const dueDate = new Date("{{ ticket.due_date.isoformat() }}Z");
-const slaCard = document.getElementById('slaCard');
 const slaTimer = document.getElementById('slaTimer');
 const slaStatus = document.getElementById('slaStatus');
-
+const slaCard = document.getElementById('slaCard');
 function updateTimer() {
     const now = new Date();
     const diff = dueDate - now;
-    
     if (diff <= 0) {
         const overdue = Math.abs(diff);
         const hours = Math.floor(overdue / (1000 * 60 * 60));
         const minutes = Math.floor((overdue % (1000 * 60 * 60)) / (1000 * 60));
-        slaTimer.innerHTML = `<span style="color: #ef4444;">OVERDUE</span>`;
-        slaStatus.innerHTML = `<span style="color: #ef4444;">by ${hours}h ${minutes}m</span>`;
+        slaTimer.innerHTML = '<span style="color: #ef4444;">OVERDUE</span>';
+        slaStatus.innerHTML = '<span style="color: #ef4444;">by ' + hours + 'h ' + minutes + 'm</span>';
         slaCard.style.borderColor = '#ef4444';
-        slaCard.style.background = 'rgba(239, 68, 68, 0.1)';
     } else {
         const hours = Math.floor(diff / (1000 * 60 * 60));
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        
-        if (hours < 1) {
-            slaTimer.style.color = '#ef4444';
-            slaCard.style.borderColor = '#ef4444';
-            slaStatus.innerHTML = '<span style="color: #ef4444;">⚠️ Critical - Respond Now!</span>';
-        } else if (hours < 4) {
-            slaTimer.style.color = '#f59e0b';
-            slaCard.style.borderColor = '#f59e0b';
-            slaStatus.innerHTML = '<span style="color: #f59e0b;">⏰ Attention Needed</span>';
-        } else {
-            slaTimer.style.color = '#10b981';
-            slaCard.style.borderColor = '#10b981';
-            slaStatus.innerHTML = '<span style="color: #10b981;">✓ On Track</span>';
-        }
-        
-        slaTimer.textContent = `${hours}h ${minutes}m ${seconds}s`;
+        slaTimer.textContent = hours + 'h ' + minutes + 'm ' + seconds + 's';
+        if (hours < 1) { slaTimer.style.color = '#ef4444'; slaCard.style.borderColor = '#ef4444'; slaStatus.innerHTML = '<span style="color:#ef4444;">⚠️ Critical</span>'; }
+        else if (hours < 4) { slaTimer.style.color = '#f59e0b'; slaCard.style.borderColor = '#f59e0b'; slaStatus.innerHTML = '<span style="color:#f59e0b;">⏰ Attention</span>'; }
+        else { slaTimer.style.color = '#10b981'; slaCard.style.borderColor = '#10b981'; slaStatus.innerHTML = '<span style="color:#10b981;">✓ On Track</span>'; }
     }
 }
-
-updateTimer();
-setInterval(updateTimer, 1000);
+updateTimer(); setInterval(updateTimer, 1000);
 {% endif %}
 
 function getAISuggestion() {
     const btn = document.getElementById('aiBtn');
-    const originalText = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Thinking...';
     btn.disabled = true;
-    
-    fetch('/api/suggest-response', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ticket_id: {{ ticket.id }}})
-    })
-    .then(response => response.json())
-    .then(data => {
-        document.getElementById('commentBox').value = data.suggestion;
-        btn.innerHTML = '<i class="fas fa-check"></i> Inserted!';
-        setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2000);
-    })
-    .catch(error => {
-        btn.innerHTML = '<i class="fas fa-times"></i> Error';
-        setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2000);
-    });
+    fetch('/api/suggest-response', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ticket_id: {{ ticket.id }}}) })
+    .then(r => r.json()).then(data => { document.getElementById('commentBox').value = data.suggestion; btn.innerHTML = '<i class="fas fa-check"></i> Done!'; setTimeout(() => { btn.innerHTML = '<i class="fas fa-magic"></i> AI Suggest'; btn.disabled = false; }, 2000); });
 }
 </script>
 {% endblock %}
