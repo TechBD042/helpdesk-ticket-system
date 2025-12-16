@@ -554,3 +554,15 @@ if __name__ == '__main__':
     with app.app_context():
         init_db()
     app.run(debug=True, host='0.0.0.0', port=5000)
+
+# Force reset on next deploy
+import os
+if os.environ.get('RENDER'):
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+        admin = User(username='DGSource', email='Demarib2000@yahoo.com', role='admin', department='IT')
+        admin.set_password('Helpdesk2024!')
+        db.session.add(admin)
+        db.session.commit()
+        print("Database reset with new admin!")
