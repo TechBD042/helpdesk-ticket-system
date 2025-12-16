@@ -5,45 +5,612 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - HelpDesk Pro</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-primary: #0a0a0f; --bg-secondary: #12121a; --bg-tertiary: #1a1a24; --border-color: #2a2a3a; --text-primary: #e8e8ed; --text-secondary: #9898a8; --accent-blue: #3b82f6; --accent-purple: #8b5cf6; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
-        .login-container { width: 100%; max-width: 420px; }
-        .login-header { text-align: center; margin-bottom: 2rem; }
-        .logo { display: inline-flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; }
-        .logo-icon { width: 56px; height: 56px; background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; color: white; }
-        .logo-text { font-weight: 700; font-size: 1.75rem; }
-        .login-subtitle { color: var(--text-secondary); }
-        .login-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; padding: 2rem; }
-        .form-group { margin-bottom: 1.25rem; }
-        .form-label { display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-secondary); }
-        .form-control { width: 100%; padding: 0.875rem 1rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 1rem; font-family: inherit; }
-        .form-control:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
-        .btn { width: 100%; padding: 0.875rem; background: var(--accent-blue); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
-        .btn:hover { background: #2563eb; }
-        .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
-        .alert-danger { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; }
-        .alert-success { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; }
-        .login-footer { text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.9rem; }
-        .login-footer a { color: var(--accent-blue); text-decoration: none; font-weight: 500; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #030014;
+            color: #ffffff; 
+            min-height: 100vh; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* EPIC ANIMATED BACKGROUND */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            overflow: hidden;
+            background: linear-gradient(125deg, #030014 0%, #0f0728 25%, #1a0a3e 50%, #0d0620 75%, #030014 100%);
+        }
+        
+        /* Aurora Effect */
+        .aurora {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        
+        .aurora::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg at 50% 50%, 
+                transparent 0deg, rgba(139, 92, 246, 0.3) 60deg, transparent 120deg,
+                rgba(236, 72, 153, 0.3) 180deg, transparent 240deg,
+                rgba(6, 182, 212, 0.3) 300deg, transparent 360deg);
+            animation: auroraRotate 20s linear infinite;
+        }
+        
+        @keyframes auroraRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Glowing Orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            animation: float 15s infinite ease-in-out;
+        }
+        
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.5) 0%, transparent 70%);
+            top: -200px;
+            left: -100px;
+        }
+        
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.5) 0%, transparent 70%);
+            bottom: -150px;
+            right: -100px;
+            animation-delay: -5s;
+        }
+        
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.4) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -10s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, -30px) scale(1.1); }
+            50% { transform: translate(20px, 40px) scale(0.95); }
+            75% { transform: translate(-40px, -20px) scale(1.05); }
+        }
+        
+        /* Grid */
+        .grid-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(139, 92, 246, 0.06) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(139, 92, 246, 0.06) 2px, transparent 2px);
+            background-size: 60px 60px;
+        }
+        
+        /* RUNNING DOGS! 🐕 */
+        .dog-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .dog {
+            position: absolute;
+            font-size: 3rem;
+            animation: runDog linear infinite;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+        }
+        
+        .dog-1 { top: 15%; animation-duration: 8s; animation-delay: 0s; }
+        .dog-2 { top: 35%; animation-duration: 6s; animation-delay: -2s; font-size: 2.5rem; }
+        .dog-3 { top: 55%; animation-duration: 10s; animation-delay: -4s; font-size: 2rem; }
+        .dog-4 { top: 75%; animation-duration: 7s; animation-delay: -1s; }
+        .dog-5 { top: 25%; animation-duration: 9s; animation-delay: -6s; font-size: 2.2rem; }
+        .dog-6 { top: 65%; animation-duration: 5s; animation-delay: -3s; font-size: 3.5rem; }
+        .dog-7 { top: 45%; animation-duration: 11s; animation-delay: -5s; font-size: 1.8rem; }
+        .dog-8 { top: 85%; animation-duration: 6.5s; animation-delay: -7s; font-size: 2.8rem; }
+        
+        @keyframes runDog {
+            0% { 
+                left: -100px; 
+                transform: scaleX(1) translateY(0);
+            }
+            10% { transform: scaleX(1) translateY(-15px); }
+            20% { transform: scaleX(1) translateY(0); }
+            30% { transform: scaleX(1) translateY(-15px); }
+            40% { transform: scaleX(1) translateY(0); }
+            50% { transform: scaleX(1) translateY(-15px); }
+            60% { transform: scaleX(1) translateY(0); }
+            70% { transform: scaleX(1) translateY(-15px); }
+            80% { transform: scaleX(1) translateY(0); }
+            90% { transform: scaleX(1) translateY(-15px); }
+            100% { 
+                left: calc(100% + 100px); 
+                transform: scaleX(1) translateY(0);
+            }
+        }
+        
+        /* Paw prints trail */
+        .paw-prints {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+        
+        .paw {
+            position: absolute;
+            font-size: 1.5rem;
+            opacity: 0;
+            animation: pawAppear 4s infinite;
+            color: rgba(139, 92, 246, 0.4);
+            text-shadow: 0 0 10px rgba(139, 92, 246, 0.6);
+        }
+        
+        .paw:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+        .paw:nth-child(2) { top: 22%; left: 15%; animation-delay: 0.3s; transform: rotate(15deg); }
+        .paw:nth-child(3) { top: 19%; left: 20%; animation-delay: 0.6s; }
+        .paw:nth-child(4) { top: 21%; left: 25%; animation-delay: 0.9s; transform: rotate(15deg); }
+        .paw:nth-child(5) { top: 50%; left: 70%; animation-delay: 1.5s; }
+        .paw:nth-child(6) { top: 52%; left: 75%; animation-delay: 1.8s; transform: rotate(15deg); }
+        .paw:nth-child(7) { top: 49%; left: 80%; animation-delay: 2.1s; }
+        .paw:nth-child(8) { top: 51%; left: 85%; animation-delay: 2.4s; transform: rotate(15deg); }
+        .paw:nth-child(9) { top: 80%; left: 30%; animation-delay: 2.7s; }
+        .paw:nth-child(10) { top: 82%; left: 35%; animation-delay: 3s; transform: rotate(15deg); }
+        .paw:nth-child(11) { top: 79%; left: 40%; animation-delay: 3.3s; }
+        .paw:nth-child(12) { top: 81%; left: 45%; animation-delay: 3.6s; transform: rotate(15deg); }
+        
+        @keyframes pawAppear {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            20%, 80% { opacity: 0.6; transform: scale(1); }
+        }
+        
+        /* Floating particles */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: rise 10s infinite;
+        }
+        
+        .particle:nth-child(odd) { background: #a855f7; box-shadow: 0 0 15px #a855f7; }
+        .particle:nth-child(even) { background: #22d3ee; box-shadow: 0 0 15px #22d3ee; }
+        .particle:nth-child(3n) { background: #f472b6; box-shadow: 0 0 15px #f472b6; }
+        
+        .particle:nth-child(1) { left: 10%; animation-duration: 8s; }
+        .particle:nth-child(2) { left: 20%; animation-duration: 12s; animation-delay: -2s; }
+        .particle:nth-child(3) { left: 30%; animation-duration: 9s; animation-delay: -4s; }
+        .particle:nth-child(4) { left: 40%; animation-duration: 11s; animation-delay: -1s; }
+        .particle:nth-child(5) { left: 50%; animation-duration: 10s; animation-delay: -3s; }
+        .particle:nth-child(6) { left: 60%; animation-duration: 13s; animation-delay: -5s; }
+        .particle:nth-child(7) { left: 70%; animation-duration: 8s; animation-delay: -2s; }
+        .particle:nth-child(8) { left: 80%; animation-duration: 14s; animation-delay: -4s; }
+        .particle:nth-child(9) { left: 90%; animation-duration: 9s; animation-delay: -1s; }
+        .particle:nth-child(10) { left: 15%; animation-duration: 11s; animation-delay: -6s; }
+        
+        @keyframes rise {
+            0% { bottom: -20px; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 0.5; }
+            100% { bottom: 100%; opacity: 0; }
+        }
+        
+        /* Login Container */
+        .login-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 480px;
+            padding: 2rem;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+        
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .logo-icon {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            box-shadow: 0 0 40px rgba(139, 92, 246, 0.6), 0 0 80px rgba(139, 92, 246, 0.3);
+            animation: iconPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes iconPulse {
+            0%, 100% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.6), 0 0 80px rgba(139, 92, 246, 0.3); }
+            50% { box-shadow: 0 0 60px rgba(139, 92, 246, 0.8), 0 0 120px rgba(139, 92, 246, 0.5); }
+        }
+        
+        .logo-text {
+            font-weight: 900;
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(139, 92, 246, 0.5);
+        }
+        
+        .login-subtitle {
+            color: #c4b5fd;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        
+        /* Login Card */
+        .login-card {
+            background: linear-gradient(135deg, rgba(20, 15, 60, 0.95) 0%, rgba(15, 10, 50, 0.98) 100%);
+            backdrop-filter: blur(30px);
+            border: 2px solid rgba(139, 92, 246, 0.4);
+            border-radius: 28px;
+            padding: 2.5rem;
+            box-shadow: 
+                0 25px 80px rgba(0, 0, 0, 0.5),
+                0 0 100px rgba(139, 92, 246, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 28px;
+            padding: 2px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.6), rgba(236, 72, 153, 0.4), rgba(6, 182, 212, 0.6));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: borderGlow 3s linear infinite;
+        }
+        
+        @keyframes borderGlow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
+        .form-group {
+            margin-bottom: 1.75rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: #c4b5fd;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 1.125rem 1.5rem;
+            background: rgba(25, 20, 70, 0.8);
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            border-radius: 14px;
+            color: #ffffff;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #a855f7;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2), 0 0 30px rgba(139, 92, 246, 0.4);
+            background: rgba(30, 25, 80, 0.9);
+        }
+        
+        .form-control::placeholder {
+            color: #6a6a82;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 1.125rem;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 0 50px rgba(139, 92, 246, 0.7), 0 20px 40px rgba(139, 92, 246, 0.4);
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn:active {
+            transform: translateY(-2px) scale(1.01);
+        }
+        
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .alert-danger {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
+            border: 2px solid rgba(239, 68, 68, 0.5);
+            color: #f87171;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+        }
+        
+        .alert-success {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));
+            border: 2px solid rgba(16, 185, 129, 0.5);
+            color: #34d399;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+        }
+        
+        .login-footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: #a0a0b8;
+            font-size: 1rem;
+        }
+        
+        .login-footer a {
+            color: #a855f7;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+        }
+        
+        .login-footer a:hover {
+            color: #ec4899;
+            text-shadow: 0 0 20px rgba(236, 72, 153, 0.8);
+        }
+        
+        /* Dog bone decoration */
+        .bone {
+            position: absolute;
+            font-size: 2rem;
+            animation: spinBone 10s linear infinite;
+            opacity: 0.3;
+        }
+        
+        .bone-1 { top: 10%; right: 10%; animation-delay: 0s; }
+        .bone-2 { bottom: 15%; left: 8%; animation-delay: -3s; }
+        .bone-3 { top: 40%; right: 5%; animation-delay: -6s; font-size: 1.5rem; }
+        .bone-4 { bottom: 30%; left: 5%; animation-delay: -2s; font-size: 2.5rem; }
+        
+        @keyframes spinBone {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        
+        /* Fun text */
+        .fun-text {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #8b7ec8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .fun-text span {
+            animation: bounce 1s ease-in-out infinite;
+        }
+        
+        .fun-text span:nth-child(2) { animation-delay: 0.1s; }
+        .fun-text span:nth-child(3) { animation-delay: 0.2s; }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
     </style>
 </head>
 <body>
+    <!-- Epic Animated Background -->
+    <div class="animated-bg">
+        <div class="aurora"></div>
+        <div class="grid-bg"></div>
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        
+        <!-- Particles -->
+        <div class="particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+        
+        <!-- Running Dogs! -->
+        <div class="dog-container">
+            <div class="dog dog-1">🐕</div>
+            <div class="dog dog-2">🐩</div>
+            <div class="dog dog-3">🐕‍🦺</div>
+            <div class="dog dog-4">🦮</div>
+            <div class="dog dog-5">🐶</div>
+            <div class="dog dog-6">🐕</div>
+            <div class="dog dog-7">🐩</div>
+            <div class="dog dog-8">🐶</div>
+        </div>
+        
+        <!-- Paw Prints -->
+        <div class="paw-prints">
+            <div class="paw">🐾</div>
+            <div class="paw">🐾</div>
+            <div class="paw">🐾</div>
+            <div class="paw">🐾</div>
+            <div class="paw">🐾</div>
+            <div class="paw">🐾</div>
+            <div class="paw">🐾</div>
+            <div class="paw">🐾</div>
+            <div class="paw">🐾</div>
+            <div class="paw">🐾</div>
+            <div class="paw">🐾</div>
+            <div class="paw">🐾</div>
+        </div>
+        
+        <!-- Floating Bones -->
+        <div class="bone bone-1">🦴</div>
+        <div class="bone bone-2">🦴</div>
+        <div class="bone bone-3">🦴</div>
+        <div class="bone bone-4">🦴</div>
+    </div>
+    
     <div class="login-container">
         <div class="login-header">
-            <div class="logo"><div class="logo-icon"><i class="fas fa-headset"></i></div><span class="logo-text">HelpDesk Pro</span></div>
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-headset"></i></div>
+                <span class="logo-text">HelpDesk Pro</span>
+            </div>
             <p class="login-subtitle">Sign in to your account</p>
         </div>
+        
         <div class="login-card">
-            {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}{% for category, message in messages %}<div class="alert alert-{{ category }}">{{ message }}</div>{% endfor %}{% endif %}{% endwith %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <i class="fas fa-{% if category == 'danger' %}exclamation-circle{% else %}check-circle{% endif %}"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
             <form method="POST">
-                <div class="form-group"><label class="form-label">Username</label><input type="text" name="username" class="form-control" placeholder="Enter your username" required></div>
-                <div class="form-group"><label class="form-label">Password</label><input type="password" name="password" class="form-control" placeholder="Enter your password" required></div>
-                <button type="submit" class="btn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" name="username" class="form-control" placeholder="Enter your username" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
             </form>
-            <div class="login-footer">Don't have an account? <a href="{{ url_for('register') }}">Register here</a></div>
+            
+            <div class="login-footer">
+                Don't have an account? <a href="{{ url_for('register') }}">Register here</a>
+            </div>
+            
+            <div class="fun-text">
+                <span>🐕</span>
+                <span>Woof!</span>
+                <span>Let's fetch some tickets!</span>
+                <span>🐾</span>
+            </div>
         </div>
     </div>
 </body>
