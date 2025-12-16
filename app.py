@@ -582,3 +582,53 @@ if os.environ.get('RENDER'):
         db.session.add(admin)
         db.session.commit()
         print("Database reset with new admin!")
+
+
+# =============================================================================
+# AI SUGGESTED RESPONSES
+# =============================================================================
+
+@app.route('/api/suggest-response', methods=['POST'])
+@login_required
+def suggest_response():
+    """Generate AI-suggested response for a ticket"""
+    data = request.get_json()
+    ticket_id = data.get('ticket_id')
+    
+    ticket = Ticket.query.get_or_404(ticket_id)
+    
+    # Build context from ticket
+    context = f"""
+    Ticket Subject: {ticket.subject}
+    Category: {ticket.category}
+    Priority: {ticket.priority}
+    Description: {ticket.description}
+    """
+    
+    # Add previous comments for context
+    if ticket.comments:
+        context += "\n\nPrevious comments:\n"
+        for comment in ticket.comments[-3:]:  # Last 3 comments
+            context += f"- {comment.user.username}: {comment.content[:200]}\n"
+    
+    # Generate suggested response based on category
+    suggestions = {
+        'Hardware': f"Hi {ticket.requester.username},\n\nThank you for reporting this hardware issue. I'll need to gather some additional information:\n\n1. When did this issue first occur?\n2. Have you tried restarting the device?\n3. Are there any error lights or messages?\n\nI'll schedule a time to come look at the equipment. What times work best for you today?\n\nBest regards,\nIT Support",
+        
+        'Software': f"Hi {ticket.requester.username},\n\nThank you for reaching out about this software issue. Let's try a few troubleshooting steps:\n\n1. Please close the application completely and reopen it\n2. If that doesn't work, try restarting your computer\n3. Make sure the software is up to date\n\nIf the issue persists after trying these steps, please let me know and I'll remote in to take a closer look.\n\nBest regards,\nIT Support",
+        
+        'Network': f"Hi {ticket.requester.username},\n\nI understand you're having network connectivity issues. Let's troubleshoot:\n\n1. Are other devices on the same network working?\n2. Have you tried disconnecting and reconnecting to the network?\n3. Can you try restarting your router/modem?\n\nIf you're in the office, I'll come check the physical connection. If remote, let's schedule a call.\n\nBest regards,\nIT Support",
+        
+        'VPN': f"Hi {ticket.requester.username},\n\nSorry to hear you're having VPN issues. This is often related to credentials or network settings. Please try:\n\n1. Completely close the VPN client\n2. Restart your computer\n3. Ensure you're using your current network password\n4. Try connecting from a different network if possible\n\nIf you recently changed your password, it may take up to an hour to sync. Let me know if issues persist.\n\nBest regards,\nIT Support",
+        
+        'Account Access': f"Hi {ticket.requester.username},\n\nI can help you with your account access issue. For security purposes, I'll need to verify your identity.\n\nPlease confirm:\n1. Your employee ID or department\n2. Your manager's name\n\nOnce verified, I'll reset your access immediately. For future reference, you can also use the self-service password reset at password.company.local.\n\nBest regards,\nIT Support",
+        
+        'Email': f"Hi {ticket.requester.username},\n\nThank you for reporting this email issue. Let's get this resolved:\n\n1. Are you accessing email via web (Outlook.com) or the desktop app?\n2. Have you tried logging out and back in?\n3. Is the issue affecting sending, receiving, or both?\n\nI'll check the server status on our end. In the meantime, you can access email via the web portal as a backup.\n\nBest regards,\nIT Support",
+        
+        'Printer': f"Hi {ticket.requester.username},\n\nI'll help you resolve this printer issue. Please try these steps:\n\n1. Check if the printer is powered on and showing ready\n2. Ensure paper is loaded and no jams are indicated\n3. Try removing and re-adding the printer in Settings > Devices > Printers\n\nIf the issue affects multiple users, I'll come check the printer directly. What's the printer location?\n\nBest regards,\nIT Support"
+    }
+    
+    # Get suggestion based on category, with a default fallback
+    suggested = suggestions.get(ticket.category, f"Hi {ticket.requester.username},\n\nThank you for submitting this ticket. I'm reviewing your request and will follow up shortly with next steps.\n\nCould you provide any additional details that might help me resolve this faster?\n\nBest regards,\nIT Support")
+    
+    return jsonify({'suggestion': suggested})
