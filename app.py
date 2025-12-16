@@ -501,8 +501,8 @@ def init_db():
     if User.query.first():
         return
     
-    admin = User(username='admin', email='admin@helpdesk.local', role='admin', department='IT')
-    admin.set_password('admin123')
+    admin = User(username='DGSource', email='Demarib2000@yahoo.com', role='admin', department='IT')
+    admin.set_password('Helpdesk2024!')
     db.session.add(admin)
     
     tech = User(username='tech1', email='tech1@helpdesk.local', role='technician', department='IT Support')
