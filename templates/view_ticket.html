@@ -12,12 +12,47 @@
             </div>
             <div class="card-body"><div style="white-space: pre-wrap; color: var(--text-secondary);">{{ ticket.description }}</div></div>
         </div>
+        
+        <!-- Attachments Section -->
         <div class="card mt-2">
-            <div class="card-header"><h3 class="card-title"><i class="fas fa-comments"></i> Activity & Comments</h3></div>
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-paperclip"></i> Attachments</h3>
+            </div>
+            <div class="card-body">
+                {% if ticket.attachments %}
+                <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
+                    {% for attachment in ticket.attachments %}
+                    <a href="{{ url_for('uploaded_file', filename=attachment.filename) }}" target="_blank" class="attachment-item">
+                        <i class="fas fa-{% if attachment.original_filename.endswith(('.png', '.jpg', '.jpeg', '.gif')) %}image{% elif attachment.original_filename.endswith('.pdf') %}file-pdf{% else %}file{% endif %}"></i>
+                        <span>{{ attachment.original_filename[:20] }}{% if attachment.original_filename|length > 20 %}...{% endif %}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-small" style="margin-bottom: 1rem;">No attachments yet</p>
+                {% endif %}
+                
+                <form method="POST" action="{{ url_for('upload_file', ticket_id=ticket.id) }}" enctype="multipart/form-data" style="display: flex; gap: 0.5rem; align-items: center;">
+                    <input type="file" name="file" class="form-control" style="flex: 1;" accept=".png,.jpg,.jpeg,.gif,.pdf,.doc,.docx,.txt,.csv,.xlsx">
+                    <button type="submit" class="btn btn-sm btn-secondary"><i class="fas fa-upload"></i> Upload</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-2">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-comments"></i> Activity & Comments</h3>
+                {% if user.role in ['technician', 'admin'] %}
+                <button type="button" class="btn btn-sm btn-secondary" onclick="getAISuggestion()" id="aiBtn">
+                    <i class="fas fa-magic"></i> AI Suggest
+                </button>
+                {% endif %}
+            </div>
             <div class="card-body">
                 {% if ticket.comments %}{% for comment in ticket.comments %}{% if not comment.is_internal or user.role in ['technician', 'admin'] %}<div class="comment {% if comment.is_internal %}comment-internal{% endif %}"><div class="comment-header"><div class="comment-avatar">{{ comment.user.username[0].upper() }}</div><div><div class="comment-author">{{ comment.user.username }} {% if comment.is_internal %}<span class="internal-badge">Internal</span>{% endif %}</div><div class="comment-time">{{ comment.created_at.strftime('%b %d, %Y %I:%M %p') }}</div></div></div><div style="white-space: pre-wrap; margin-top: 0.5rem;">{{ comment.content }}</div></div>{% endif %}{% endfor %}{% else %}<div class="empty-state" style="padding: 2rem;"><i class="fas fa-comment-slash"></i><p>No comments yet</p></div>{% endif %}
+                
                 <form method="POST" action="{{ url_for('add_comment', ticket_id=ticket.id) }}" style="margin-top: 1rem;">
-                    <div class="form-group"><textarea name="content" class="form-control" rows="3" placeholder="Add a comment..." required></textarea></div>
+                    <div class="form-group"><textarea name="content" id="commentBox" class="form-control" rows="4" placeholder="Add a comment..." required></textarea></div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         {% if user.role in ['technician', 'admin'] %}<label class="checkbox-label"><input type="checkbox" name="is_internal"><span>Internal note</span></label>{% else %}<span></span>{% endif %}
                         <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-paper-plane"></i> Add Comment</button>
@@ -35,6 +70,8 @@
                     <div><div class="text-small text-muted">Category</div><div>{{ ticket.category }}</div></div>
                     <div><div class="text-small text-muted">Created</div><div>{{ ticket.created_at.strftime('%b %d, %Y %I:%M %p') }}</div></div>
                     <div><div class="text-small text-muted">Assigned To</div><div>{{ ticket.assignee.username if ticket.assignee else 'Unassigned' }}</div></div>
+                    {% if ticket.location %}<div><div class="text-small text-muted">Location</div><div>{{ ticket.location }}</div></div>{% endif %}
+                    {% if ticket.asset_tag %}<div><div class="text-small text-muted">Asset Tag</div><div class="text-mono">{{ ticket.asset_tag }}</div></div>{% endif %}
                 </div>
             </div>
         </div>
@@ -53,4 +90,52 @@
         {% endif %}
     </div>
 </div>
+
+<style>
+.attachment-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+.attachment-item:hover {
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+.attachment-item i {
+    color: var(--accent-blue);
+}
+</style>
+
+<script>
+function getAISuggestion() {
+    const btn = document.getElementById('aiBtn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Thinking...';
+    btn.disabled = true;
+    
+    fetch('/api/suggest-response', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ticket_id: {{ ticket.id }}})
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('commentBox').value = data.suggestion;
+        btn.innerHTML = '<i class="fas fa-check"></i> Inserted!';
+        setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2000);
+    })
+    .catch(error => {
+        btn.innerHTML = '<i class="fas fa-times"></i> Error';
+        setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2000);
+    });
+}
+</script>
 {% endblock %}

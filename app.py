@@ -3,7 +3,7 @@ HelpDesk Pro - IT Support Ticketing System
 A complete help desk solution for learning and portfolio demonstration.
 """
 
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from functools import wraps
@@ -632,3 +632,84 @@ def suggest_response():
     suggested = suggestions.get(ticket.category, f"Hi {ticket.requester.username},\n\nThank you for submitting this ticket. I'm reviewing your request and will follow up shortly with next steps.\n\nCould you provide any additional details that might help me resolve this faster?\n\nBest regards,\nIT Support")
     
     return jsonify({'suggestion': suggested})
+
+
+# =============================================================================
+# FILE ATTACHMENTS
+# =============================================================================
+
+import os
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx', 'txt', 'csv', 'xlsx'}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
+
+# Create uploads folder if it doesn't exist
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+class Attachment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ticket_id = db.Column(db.Integer, db.ForeignKey('ticket.id'), nullable=False)
+    filename = db.Column(db.String(255), nullable=False)
+    original_filename = db.Column(db.String(255), nullable=False)
+    uploaded_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    ticket = db.relationship('Ticket', backref='attachments')
+    uploader = db.relationship('User')
+
+
+@app.route('/tickets/<int:ticket_id>/upload', methods=['POST'])
+@login_required
+def upload_file(ticket_id):
+    ticket = Ticket.query.get_or_404(ticket_id)
+    user = get_current_user()
+    
+    if 'file' not in request.files:
+        flash('No file selected', 'danger')
+        return redirect(url_for('view_ticket', ticket_id=ticket_id))
+    
+    file = request.files['file']
+    if file.filename == '':
+        flash('No file selected', 'danger')
+        return redirect(url_for('view_ticket', ticket_id=ticket_id))
+    
+    if file and allowed_file(file.filename):
+        original_filename = secure_filename(file.filename)
+        # Create unique filename
+        unique_filename = f"{ticket_id}_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{original_filename}"
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+        file.save(filepath)
+        
+        attachment = Attachment(
+            ticket_id=ticket_id,
+            filename=unique_filename,
+            original_filename=original_filename,
+            uploaded_by=user.id
+        )
+        db.session.add(attachment)
+        db.session.commit()
+        
+        flash('File uploaded successfully!', 'success')
+    else:
+        flash('File type not allowed', 'danger')
+    
+    return redirect(url_for('view_ticket', ticket_id=ticket_id))
+
+
+@app.route('/uploads/<filename>')
+@login_required
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+
+# Create attachment table
+with app.app_context():
+    db.create_all()
