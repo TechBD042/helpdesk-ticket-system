@@ -116,7 +116,7 @@
             background-size: 60px 60px;
         }
         
-        /* RUNNING DOGS! 🐕 */
+        /* REAL RUNNING DOGS! 🐕 */
         .dog-container {
             position: absolute;
             top: 0;
@@ -129,75 +129,28 @@
         
         .dog {
             position: absolute;
-            font-size: 3rem;
+            height: 120px;
             animation: runDog linear infinite;
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
+            object-fit: contain;
         }
         
-        .dog-1 { top: 15%; animation-duration: 8s; animation-delay: 0s; }
-        .dog-2 { top: 35%; animation-duration: 6s; animation-delay: -2s; font-size: 2.5rem; }
-        .dog-3 { top: 55%; animation-duration: 10s; animation-delay: -4s; font-size: 2rem; }
-        .dog-4 { top: 75%; animation-duration: 7s; animation-delay: -1s; }
-        .dog-5 { top: 25%; animation-duration: 9s; animation-delay: -6s; font-size: 2.2rem; }
-        .dog-6 { top: 65%; animation-duration: 5s; animation-delay: -3s; font-size: 3.5rem; }
-        .dog-7 { top: 45%; animation-duration: 11s; animation-delay: -5s; font-size: 1.8rem; }
-        .dog-8 { top: 85%; animation-duration: 6.5s; animation-delay: -7s; font-size: 2.8rem; }
+        .dog-1 { top: 10%; height: 100px; animation-duration: 7s; animation-delay: 0s; }
+        .dog-2 { top: 30%; height: 80px; animation-duration: 5s; animation-delay: -1.5s; }
+        .dog-3 { top: 50%; height: 110px; animation-duration: 8s; animation-delay: -3s; }
+        .dog-4 { top: 70%; height: 90px; animation-duration: 6s; animation-delay: -4.5s; }
+        .dog-5 { top: 85%; height: 70px; animation-duration: 5.5s; animation-delay: -2s; }
+        .dog-6 { top: 20%; height: 85px; animation-duration: 9s; animation-delay: -6s; }
         
         @keyframes runDog {
             0% { 
-                left: -100px; 
-                transform: scaleX(1) translateY(0);
+                left: -200px; 
+                transform: scaleX(1);
             }
-            10% { transform: scaleX(1) translateY(-15px); }
-            20% { transform: scaleX(1) translateY(0); }
-            30% { transform: scaleX(1) translateY(-15px); }
-            40% { transform: scaleX(1) translateY(0); }
-            50% { transform: scaleX(1) translateY(-15px); }
-            60% { transform: scaleX(1) translateY(0); }
-            70% { transform: scaleX(1) translateY(-15px); }
-            80% { transform: scaleX(1) translateY(0); }
-            90% { transform: scaleX(1) translateY(-15px); }
             100% { 
-                left: calc(100% + 100px); 
-                transform: scaleX(1) translateY(0);
+                left: calc(100% + 200px); 
+                transform: scaleX(1);
             }
-        }
-        
-        /* Paw prints trail */
-        .paw-prints {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
-        }
-        
-        .paw {
-            position: absolute;
-            font-size: 1.5rem;
-            opacity: 0;
-            animation: pawAppear 4s infinite;
-            color: rgba(139, 92, 246, 0.4);
-            text-shadow: 0 0 10px rgba(139, 92, 246, 0.6);
-        }
-        
-        .paw:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
-        .paw:nth-child(2) { top: 22%; left: 15%; animation-delay: 0.3s; transform: rotate(15deg); }
-        .paw:nth-child(3) { top: 19%; left: 20%; animation-delay: 0.6s; }
-        .paw:nth-child(4) { top: 21%; left: 25%; animation-delay: 0.9s; transform: rotate(15deg); }
-        .paw:nth-child(5) { top: 50%; left: 70%; animation-delay: 1.5s; }
-        .paw:nth-child(6) { top: 52%; left: 75%; animation-delay: 1.8s; transform: rotate(15deg); }
-        .paw:nth-child(7) { top: 49%; left: 80%; animation-delay: 2.1s; }
-        .paw:nth-child(8) { top: 51%; left: 85%; animation-delay: 2.4s; transform: rotate(15deg); }
-        .paw:nth-child(9) { top: 80%; left: 30%; animation-delay: 2.7s; }
-        .paw:nth-child(10) { top: 82%; left: 35%; animation-delay: 3s; transform: rotate(15deg); }
-        .paw:nth-child(11) { top: 79%; left: 40%; animation-delay: 3.3s; }
-        .paw:nth-child(12) { top: 81%; left: 45%; animation-delay: 3.6s; transform: rotate(15deg); }
-        
-        @keyframes pawAppear {
-            0%, 100% { opacity: 0; transform: scale(0.5); }
-            20%, 80% { opacity: 0.6; transform: scale(1); }
         }
         
         /* Floating particles */
@@ -464,47 +417,18 @@
             text-shadow: 0 0 20px rgba(236, 72, 153, 0.8);
         }
         
-        /* Dog bone decoration */
-        .bone {
-            position: absolute;
-            font-size: 2rem;
-            animation: spinBone 10s linear infinite;
-            opacity: 0.3;
-        }
-        
-        .bone-1 { top: 10%; right: 10%; animation-delay: 0s; }
-        .bone-2 { bottom: 15%; left: 8%; animation-delay: -3s; }
-        .bone-3 { top: 40%; right: 5%; animation-delay: -6s; font-size: 1.5rem; }
-        .bone-4 { bottom: 30%; left: 5%; animation-delay: -2s; font-size: 2.5rem; }
-        
-        @keyframes spinBone {
-            0% { transform: rotate(0deg) scale(1); }
-            50% { transform: rotate(180deg) scale(1.2); }
-            100% { transform: rotate(360deg) scale(1); }
-        }
-        
-        /* Fun text */
-        .fun-text {
+        /* Fun tagline */
+        .tagline {
             text-align: center;
             margin-top: 1.5rem;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: #8b7ec8;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+            font-weight: 500;
         }
         
-        .fun-text span {
-            animation: bounce 1s ease-in-out infinite;
-        }
-        
-        .fun-text span:nth-child(2) { animation-delay: 0.1s; }
-        .fun-text span:nth-child(3) { animation-delay: 0.2s; }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+        .tagline i {
+            color: #a855f7;
+            margin: 0 0.3rem;
         }
     </style>
 </head>
@@ -531,39 +455,15 @@
             <div class="particle"></div>
         </div>
         
-        <!-- Running Dogs! -->
+        <!-- Real Running Dogs! -->
         <div class="dog-container">
-            <div class="dog dog-1">🐕</div>
-            <div class="dog dog-2">🐩</div>
-            <div class="dog dog-3">🐕‍🦺</div>
-            <div class="dog dog-4">🦮</div>
-            <div class="dog dog-5">🐶</div>
-            <div class="dog dog-6">🐕</div>
-            <div class="dog dog-7">🐩</div>
-            <div class="dog dog-8">🐶</div>
+            <img src="https://media.giphy.com/media/4Zo41lhzKt6iZ8xff9/giphy.gif" class="dog dog-1" alt="running dog">
+            <img src="https://media.giphy.com/media/l0MYyv6UK0Bd4DE76/giphy.gif" class="dog dog-2" alt="running dog">
+            <img src="https://media.giphy.com/media/mW05nwEyXLP0Y/giphy.gif" class="dog dog-3" alt="running dog">
+            <img src="https://media.giphy.com/media/Y0G6gc8CJu1ynAZ1nr/giphy.gif" class="dog dog-4" alt="running dog">
+            <img src="https://media.giphy.com/media/l3q2Wl7Wpz09Z5hfi/giphy.gif" class="dog dog-5" alt="running dog">
+            <img src="https://media.giphy.com/media/5AnqfqyWRtG2Q/giphy.gif" class="dog dog-6" alt="running dog">
         </div>
-        
-        <!-- Paw Prints -->
-        <div class="paw-prints">
-            <div class="paw">🐾</div>
-            <div class="paw">🐾</div>
-            <div class="paw">🐾</div>
-            <div class="paw">🐾</div>
-            <div class="paw">🐾</div>
-            <div class="paw">🐾</div>
-            <div class="paw">🐾</div>
-            <div class="paw">🐾</div>
-            <div class="paw">🐾</div>
-            <div class="paw">🐾</div>
-            <div class="paw">🐾</div>
-            <div class="paw">🐾</div>
-        </div>
-        
-        <!-- Floating Bones -->
-        <div class="bone bone-1">🦴</div>
-        <div class="bone bone-2">🦴</div>
-        <div class="bone bone-3">🦴</div>
-        <div class="bone bone-4">🦴</div>
     </div>
     
     <div class="login-container">
@@ -605,11 +505,8 @@
                 Don't have an account? <a href="{{ url_for('register') }}">Register here</a>
             </div>
             
-            <div class="fun-text">
-                <span>🐕</span>
-                <span>Woof!</span>
-                <span>Let's fetch some tickets!</span>
-                <span>🐾</span>
+            <div class="tagline">
+                <i class="fas fa-paw"></i> Fetching solutions, one ticket at a time <i class="fas fa-paw"></i>
             </div>
         </div>
     </div>
