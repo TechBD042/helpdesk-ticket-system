@@ -796,6 +796,199 @@ def log_time(ticket_id):
 
 
 # =============================================================================
+# PUBLIC CONTACT API (No Authentication Required)
+# For external websites like cccops.com to submit contact form inquiries
+# =============================================================================
+
+from flask_cors import CORS, cross_origin
+import re
+
+# Rate limiting for public API
+public_api_requests = {}  # {ip: [(timestamp, ...], ...}
+
+def check_rate_limit(ip, max_requests=5, window_seconds=3600):
+    """Check if IP has exceeded rate limit"""
+    now = datetime.utcnow()
+    cutoff = now - timedelta(seconds=window_seconds)
+
+    if ip not in public_api_requests:
+        public_api_requests[ip] = []
+
+    # Clean old entries
+    public_api_requests[ip] = [t for t in public_api_requests[ip] if t > cutoff]
+
+    if len(public_api_requests[ip]) >= max_requests:
+        return False
+
+    public_api_requests[ip].append(now)
+    return True
+
+def is_valid_email(email):
+    """Basic email validation"""
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(pattern, email) is not None
+
+
+@app.route('/api/public/contact', methods=['POST', 'OPTIONS'])
+@cross_origin(origins=['https://cccops.com', 'https://www.cccops.com', 'http://localhost:*', 'http://127.0.0.1:*'])
+def public_contact():
+    """
+    Public endpoint for contact form submissions from external websites.
+    Creates a ticket without requiring authentication.
+
+    Expected JSON payload:
+    {
+        "name": "John Doe",
+        "email": "john@example.com",
+        "organization": "Company Name",  # optional
+        "message": "I'd like to learn more about your services.",
+        "honeypot": ""  # should be empty (spam protection)
+    }
+    """
+    # Handle preflight
+    if request.method == 'OPTIONS':
+        return '', 200
+
+    # Rate limiting
+    client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    if client_ip:
+        client_ip = client_ip.split(',')[0].strip()
+
+    if not check_rate_limit(client_ip):
+        return jsonify({
+            'success': False,
+            'error': 'Too many requests. Please try again later.'
+        }), 429
+
+    # Get JSON data
+    data = request.get_json()
+    if not data:
+        return jsonify({
+            'success': False,
+            'error': 'Invalid request format. JSON required.'
+        }), 400
+
+    # Honeypot check (spam protection)
+    honeypot = data.get('honeypot', '') or data.get('_gotcha', '')
+    if honeypot:
+        # Bot detected - silently accept but don't create ticket
+        return jsonify({
+            'success': True,
+            'message': 'Thank you for your message!',
+            'ticket_number': 'TKT-RECEIVED'
+        }), 200
+
+    # Validate required fields
+    name = data.get('name', '').strip()
+    email = data.get('email', '').strip()
+    message = data.get('message', '').strip()
+    organization = data.get('organization', '').strip()
+
+    errors = []
+    if not name:
+        errors.append('Name is required')
+    if not email:
+        errors.append('Email is required')
+    elif not is_valid_email(email):
+        errors.append('Invalid email format')
+    if not message:
+        errors.append('Message is required')
+    if len(message) < 10:
+        errors.append('Message must be at least 10 characters')
+    if len(message) > 5000:
+        errors.append('Message must be less than 5000 characters')
+
+    if errors:
+        return jsonify({
+            'success': False,
+            'error': '; '.join(errors)
+        }), 400
+
+    try:
+        # Find or create a "website contact" user
+        contact_user = User.query.filter_by(email=email).first()
+
+        if not contact_user:
+            # Create a guest user for this contact
+            username = f"contact_{email.split('@')[0]}_{secrets.token_hex(4)}"
+            contact_user = User(
+                username=username,
+                email=email,
+                role='user',
+                department=organization or 'Website Contact'
+            )
+            contact_user.set_password(secrets.token_hex(16))  # Random password they won't use
+            db.session.add(contact_user)
+            db.session.flush()  # Get the ID
+
+        # Create the ticket
+        subject = f"Website Contact: {name}"
+        if organization:
+            subject += f" ({organization})"
+
+        description = f"""**Contact Form Submission from cccops.com**
+
+**Name:** {name}
+**Email:** {email}
+**Organization:** {organization or 'Not provided'}
+
+**Message:**
+{message}
+
+---
+*Submitted via website contact form*
+*IP Address: {client_ip}*
+"""
+
+        ticket = Ticket(
+            ticket_number=Ticket.generate_ticket_number(),
+            subject=subject[:200],  # Limit subject length
+            description=description,
+            category='General',
+            priority='Medium',
+            requester_id=contact_user.id,
+            contact_method='Email',
+            location='Website'
+        )
+        ticket.due_date = datetime.utcnow() + timedelta(hours=24)
+
+        db.session.add(ticket)
+        db.session.commit()
+
+        # Log the contact submission
+        log_audit(
+            user_id=contact_user.id,
+            action='public_contact',
+            details=f'Contact form submitted: {ticket.ticket_number} from {email}'
+        )
+
+        return jsonify({
+            'success': True,
+            'message': 'Thank you for contacting us! We will respond within 24 hours.',
+            'ticket_number': ticket.ticket_number
+        }), 201
+
+    except Exception as e:
+        db.session.rollback()
+        # Log error but don't expose details to client
+        print(f"Error creating contact ticket: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'An error occurred. Please try again or email us directly.'
+        }), 500
+
+
+@app.route('/api/public/health', methods=['GET'])
+def public_health():
+    """Health check endpoint for monitoring"""
+    return jsonify({
+        'status': 'healthy',
+        'service': 'HelpDesk Pro',
+        'timestamp': datetime.utcnow().isoformat()
+    })
+
+
+# =============================================================================
 # AUDIT LOGS
 # =============================================================================
 
