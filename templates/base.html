@@ -60,7 +60,7 @@
         }
         
         /* EPIC ANIMATED BACKGROUND */
-        .animated-bg {
+        .animated-bg { pointer-events: none;
             position: fixed;
             top: 0;
             left: 0;
@@ -1087,7 +1087,7 @@
         .pulse { animation: pulse 2s infinite; }
         
         /* Light theme adjustments */
-        [data-theme="light"] .animated-bg {
+        [data-theme="light"] .animated-bg { pointer-events: none;
             background: linear-gradient(135deg, #e0e7ff 0%, #faf5ff 50%, #e0f2fe 100%);
         }
         
@@ -1095,6 +1095,20 @@
         [data-theme="light"] .aurora::before, [data-theme="light"] .aurora::after { opacity: 0.5; }
         [data-theme="light"] .particle { opacity: 0.6; }
         [data-theme="light"] .star { opacity: 0.3; }
+    
+        .animated-bg, .animated-bg * {
+            pointer-events: none !important;
+        }
+        
+        .app-container, .main-content, .content-body, .card, form, input, select, textarea, button, a {
+            pointer-events: auto !important;
+            position: relative;
+        }
+        
+        .main-content {
+            z-index: 10;
+        }
+
     </style>
 </head>
 <body>
