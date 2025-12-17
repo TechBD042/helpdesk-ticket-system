@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Login - HelpDesk Pro</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -17,17 +20,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            overflow-x: hidden;
             position: relative;
         }
         
-        /* Animated Background */
         .animated-bg {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             z-index: 0;
             overflow: hidden;
             background: linear-gradient(125deg, #030014 0%, #0f0728 25%, #1a0a3e 50%, #0d0620 75%, #030014 100%);
@@ -138,7 +137,6 @@
             100% { bottom: 100%; opacity: 0; }
         }
         
-        /* Login Container - HIGH Z-INDEX */
         .login-container {
             position: relative;
             z-index: 100;
@@ -187,6 +185,7 @@
             background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .login-subtitle {
@@ -198,11 +197,11 @@
         .login-card {
             background: linear-gradient(135deg, rgba(20, 15, 60, 0.95) 0%, rgba(15, 10, 50, 0.98) 100%);
             backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
             border: 2px solid rgba(139, 92, 246, 0.4);
             border-radius: 28px;
             padding: 2.5rem;
             box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5), 0 0 100px rgba(139, 92, 246, 0.2);
-            position: relative;
         }
         
         .form-group { margin-bottom: 1.75rem; }
@@ -227,6 +226,8 @@
             font-size: 1rem;
             font-family: inherit;
             transition: all 0.4s;
+            -webkit-appearance: none;
+            appearance: none;
         }
         
         .form-control:focus {
@@ -252,11 +253,17 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+            -webkit-appearance: none;
+            appearance: none;
         }
         
-        .btn:hover {
+        .btn:hover, .btn:focus {
             transform: translateY(-4px) scale(1.02);
             box-shadow: 0 0 50px rgba(139, 92, 246, 0.7), 0 20px 40px rgba(139, 92, 246, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(-2px) scale(1.01);
         }
         
         .alert {
@@ -295,9 +302,7 @@
             transition: all 0.3s;
         }
         
-        .login-footer a:hover {
-            color: #ec4899;
-        }
+        .login-footer a:hover { color: #ec4899; }
         
         .tagline {
             text-align: center;
@@ -308,6 +313,13 @@
         }
         
         .tagline i { color: #a855f7; margin: 0 0.3rem; }
+        
+        @media (max-width: 500px) {
+            .login-container { padding: 1rem; }
+            .login-card { padding: 1.5rem; }
+            .logo-text { font-size: 1.8rem; }
+            .logo-icon { width: 56px; height: 56px; font-size: 1.5rem; }
+        }
     </style>
 </head>
 <body>
@@ -346,14 +358,14 @@
                 {% endif %}
             {% endwith %}
             
-            <form method="POST">
+            <form method="POST" action="{{ url_for('login') }}">
                 <div class="form-group">
                     <label class="form-label">Username</label>
-                    <input type="text" name="username" class="form-control" placeholder="Enter your username" required>
+                    <input type="text" name="username" class="form-control" placeholder="Enter your username" required autocomplete="username">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control" placeholder="Enter your password" required>
+                    <input type="password" name="password" class="form-control" placeholder="Enter your password" required autocomplete="current-password">
                 </div>
                 <button type="submit" class="btn">
                     <i class="fas fa-sign-in-alt"></i> Sign In
@@ -365,7 +377,7 @@
             </div>
             
             <div class="tagline">
-                <i class="fas fa-paw"></i> Fetching solutions, one ticket at a time <i class="fas fa-paw"></i>
+                <i class="fas fa-shield-alt"></i> Secure IT Support Portal <i class="fas fa-shield-alt"></i>
             </div>
         </div>
     </div>
