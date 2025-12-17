@@ -151,17 +151,27 @@ def register():
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
-        department = request.form.get('department')
+        confirm_password = request.form.get('confirm_password')
+        
+        # Validation
+        if not username or not email or not password:
+            flash('All fields are required.', 'danger')
+            return redirect(url_for('register'))
+        
+        if password != confirm_password:
+            flash('Passwords do not match.', 'danger')
+            return redirect(url_for('register'))
         
         if User.query.filter_by(username=username).first():
             flash('Username already exists.', 'danger')
-            return render_template('register.html')
+            return redirect(url_for('register'))
         
         if User.query.filter_by(email=email).first():
             flash('Email already registered.', 'danger')
-            return render_template('register.html')
+            return redirect(url_for('register'))
         
-        user = User(username=username, email=email, department=department)
+        # Create user
+        user = User(username=username, email=email, role='user')
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
