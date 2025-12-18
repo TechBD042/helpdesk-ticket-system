@@ -30,7 +30,7 @@
                 <p class="text-muted text-small" style="margin-bottom: 1rem;">No attachments yet</p>
                 {% endif %}
                 <form method="POST" action="{{ url_for('upload_file', ticket_id=ticket.id) }}" enctype="multipart/form-data" style="display: flex; gap: 0.5rem; align-items: center;">
-                    <input type="file" name="file" class="form-control" style="flex: 1;">
+                    <input type="file" name="file" style="position:relative; z-index:999; cursor:pointer;" class="form-control" style="flex: 1;">
                     <button type="submit" class="btn btn-sm btn-secondary"><i class="fas fa-upload"></i> Upload</button>
                 </form>
             </div>
